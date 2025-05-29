@@ -35,29 +35,44 @@ class LiveLeaperGUI(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("LiveLeaper")
-        self.setFixedSize(400, 360)
+        self.setFixedSize(420, 400)
         self.setStyleSheet("""
             QWidget {
-                background-color: #2e2e2e;
-                color: white;
-                font-size: 14px;
+                background-color: #1f1f1f;
+                color: #ffffff;
+                font-size: 13px;
+            }
+            QLabel {
+                font-weight: bold;
             }
             QLineEdit, QComboBox {
-                background-color: #3c3c3c;
+                background-color: #2b2b2b;
                 color: white;
                 border: 1px solid #5a5a5a;
                 padding: 4px;
+                border-radius: 3px;
             }
             QPushButton, QToolButton {
                 background-color: #444;
+                color: white;
                 border: 1px solid #666;
-                padding: 6px;
+                padding: 6px 10px;
+                border-radius: 3px;
             }
             QPushButton:hover, QToolButton:hover {
                 background-color: #555;
             }
             QCheckBox {
-                padding-top: 8px;
+                padding-top: 6px;
+            }
+            QProgressBar {
+                text-align: center;
+                border: 1px solid #444;
+                border-radius: 3px;
+                background-color: #2c2c2c;
+            }
+            QProgressBar::chunk {
+                background-color: #3b9cff;
             }
         """)
         self.init_ui()
@@ -65,12 +80,13 @@ class LiveLeaperGUI(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(15, 10, 15, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 15, 20, 15)
+        layout.setSpacing(12)
 
+        # 設定ボタン（右上）
         gear_button = QToolButton()
         gear_button.setIcon(QIcon("gear_icon.png"))
-        gear_button.setIconSize(QSize(24, 24))
+        gear_button.setIconSize(QSize(22, 22))
         gear_button.setStyleSheet("border: none;")
         gear_button.clicked.connect(self.open_settings)
 
@@ -98,19 +114,23 @@ class LiveLeaperGUI(QWidget):
         output_layout.addWidget(output_btn)
         layout.addLayout(output_layout)
 
-        layout.addWidget(QLabel("Output format:"))
+        format_layout = QHBoxLayout()
+        format_layout.addWidget(QLabel("Output format:"))
         self.ext_select = QComboBox()
         self.ext_select.addItems(["mp4", "webm", "mp3", "m4a"])
         self.ext_select.setFixedHeight(28)
-        layout.addWidget(self.ext_select)
+        self.ext_select.currentIndexChanged.connect(self.handle_ext_change)
+        format_layout.addWidget(self.ext_select)
+        layout.addLayout(format_layout)
 
         self.audio_checkbox = QCheckBox("Extract audio only")
         layout.addWidget(self.audio_checkbox)
 
+        # ダウンロードボタン
         self.download_button = QPushButton("Download")
-        self.download_button.setFixedHeight(36)
+        self.download_button.setFixedHeight(38)
         self.download_button.clicked.connect(self.run_download)
-        layout.addWidget(self.download_button)
+        layout.addWidget(self.download_button, alignment=Qt.AlignCenter)
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 0)
@@ -118,6 +138,14 @@ class LiveLeaperGUI(QWidget):
         layout.addWidget(self.progress_bar)
 
         self.setLayout(layout)
+
+    def handle_ext_change(self):
+        ext = self.ext_select.currentText()
+        if ext in ["mp3", "m4a"]:
+            self.audio_checkbox.setChecked(True)
+            self.audio_checkbox.setEnabled(False)
+        else:
+            self.audio_checkbox.setEnabled(True)
 
     def browse_output(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")
@@ -140,6 +168,7 @@ class LiveLeaperGUI(QWidget):
                             index = self.ext_select.findText(v)
                             if index >= 0:
                                 self.ext_select.setCurrentIndex(index)
+                                self.handle_ext_change()
                         elif k == "audio":
                             self.audio_checkbox.setChecked(v.lower() == "true")
 
@@ -171,7 +200,9 @@ class LiveLeaperGUI(QWidget):
                 if result.returncode == 0:
                     QMessageBox.information(self, "Success", "Download completed.")
                 else:
-                    QMessageBox.critical(self, "Error", result.stderr)
+                    QMessageBox.critical(self, "Error", result.stderr or "Unknown error occurred.")
+            except Exception as e:
+                QMessageBox.critical(self, "Execution Error", str(e))
             finally:
                 self.download_button.setEnabled(True)
                 self.progress_bar.setVisible(False)
@@ -183,4 +214,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     gui = LiveLeaperGUI()
     gui.show()
-    sys.exit(app.exec_())
+    app.exec_()
