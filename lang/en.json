@@ -1,0 +1,10 @@
+{
+    "download_complete": "✅ Download complete: {filename}",
+    "converting_to": "🔁 Converting to {ext} using {encoder}...",
+    "converted": "✅ Converted: {file}",
+    "deleting_temp": "🧹 Deleting temp file: {file}",
+    "conversion_failed": "❌ Conversion failed: {error}",
+    "url_normalized": "🔗 Normalized URL: {url}",
+    "download_failed": "❌ Download failed: {error}",
+    "final_output": "🎉 Final output: {file}"
+}
