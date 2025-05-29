@@ -1,0 +1,15 @@
+# GUI表示用日本語訳ファイル（gui_lang/ja.txt）
+title=ライブリーパー
+label.url=YouTubeのURL：
+label.output=保存先フォルダ：
+label.format=出力形式：
+checkbox.audio=音声のみを抽出
+button.browse=参照...
+button.download=ダウンロード
+button.close=閉じる
+button.settings=設定
+dialog.settings.title=設定
+dialog.language=言語（未実装）：
+message.success=ダウンロードが完了しました。
+message.error=エラーが発生しました：
+message.empty_url=YouTubeのURLを入力してください。
